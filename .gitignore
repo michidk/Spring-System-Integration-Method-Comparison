@@ -16,3 +16,6 @@ UnityVS.meta
 *.userprefs
 *.pidb
 *.booproj
+
+.git/
+.vs/
