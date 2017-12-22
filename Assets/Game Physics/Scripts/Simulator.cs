@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Assets.Physics.Integration;
 using UnityEngine;
 
 namespace Assets.Physics
@@ -11,6 +12,7 @@ namespace Assets.Physics
         public static Simulator Instance;
 
         public float Gravity = 0.981f;
+        public IntegrationType IntegrationType = IntegrationType.Euler;
 
         private List<MassPoint> points = new List<MassPoint>();
         private List<Spring> springs = new List<Spring>();
@@ -66,8 +68,8 @@ namespace Assets.Physics
         {
             foreach (var point in points)
             {
-                point.IntegratePosition();
-                point.IntegrateVelocity();
+                point.Dampen();
+                IntegrationType.GetIntegrator().Integrate(point, Time.deltaTime);
             }
         }
 

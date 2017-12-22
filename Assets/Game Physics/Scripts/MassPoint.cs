@@ -34,15 +34,21 @@ namespace Assets.Physics
 
         public void AddGravity()
         {
-            Force += Vector3.down * -Simulator.Instance.Gravity;
+            Force += Vector3.down * Simulator.Instance.Gravity;
         }
 
-        public void IntegratePosition()
+        public void Dampen()
         {
-            Position = Position + Time.deltaTime * Velocity;
+            // Damping
+            Force -= Velocity * Damping;
         }
 
-        public void IntegrateVelocity()
+        public void IntegratePosition(float delta)
+        {
+            Position = Position + delta * Velocity;
+        }
+        
+        public void IntegrateVelocity(float delta, Vector3 force)
         {
             if (IsFixed)
             {
@@ -51,7 +57,10 @@ namespace Assets.Physics
             }
             else
             {
-                Velocity += Force * (Time.deltaTime / Mass) * -Damping;
+
+
+                // Apply force
+                Velocity += force * (delta / Mass);
             }
         }
 
@@ -59,6 +68,18 @@ namespace Assets.Physics
         {
             Force += force;
         }
+
+        // Visualize Force Vector
+#if UNITY_EDITOR
+        void OnDrawGizmos()
+        {
+            if (IsFixed)
+                return;
+
+            Gizmos.color = Color.cyan;
+            Gizmos.DrawLine(Position, Position + Force);
+        }
+#endif
 
     }
 }
