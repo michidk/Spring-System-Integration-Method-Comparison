@@ -8,11 +8,19 @@ namespace Assets.Physics.Integration
     public class EulerIntegrator : Integrator
     {
 
-        public override void Integrate(MassPoint point, float delta)
+        public override void Integrate(List<MassPoint> points, float delta)
         {
-            point.IntegratePosition(delta);
+            Dictionary<MassPoint, Vector3> forces = Simulator.Instance.ComputeForces();
 
-            point.IntegrateVelocity(delta);
+            foreach (var point in points)
+            {
+                // start with position
+                point.IntegratePosition(delta);
+
+                // then velocity
+                if (forces.ContainsKey(point))
+                    point.IntegrateVelocity(delta, forces[point]);
+            }
         }
 
     }

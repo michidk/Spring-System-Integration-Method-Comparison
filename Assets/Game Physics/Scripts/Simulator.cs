@@ -23,18 +23,15 @@ namespace Assets.Physics
             Instance = this;
         }
 
-        void Update()
+        void FixedUpdate()
         {
-            PreparePoints();
-            PrepareSprings();
+            foreach (var point in points)
+                point.Prepare();
 
-            // ... evaluate other forces, eg. user interaction...
-            // Update() of other objects is executed (see ScriptExecutionOrder)
-        }
-
-        void LateUpdate()
-        {
             Integrate();
+
+            foreach (var point in points)
+                point.CleanUp();
         }
 
         public void RegisterMassPoint(MassPoint point)
@@ -47,30 +44,46 @@ namespace Assets.Physics
             springs.Add(spring);
         }
 
-        private void PreparePoints()
-        {
-            foreach (var point in points)
-            {
-                point.ClearForce();
-                point.AddGravity();
-            }
-        }
-
-        private void PrepareSprings()
-        {
-            foreach (var spring in springs)
-            {
-                spring.ApplyElasticForces();
-            }
-        }
-
         private void Integrate()
         {
-            foreach (var point in points)
+            ((LeapFrogIntegrator) IntegrationType.LeapFrog.GetIntegrator()).LeapFrogFirst =
+                IntegrationType != IntegrationType.LeapFrog;
+
+            IntegrationType.GetIntegrator().Integrate(points, Time.deltaTime);
+        }
+
+        // computes forces of spring forces, external forces and damping
+        public Dictionary<MassPoint, Vector3> ComputeForces()
+        {
+            Dictionary<MassPoint, Vector3> forces = ComputeSpringForces();
+
+            // adding spring forces and damping
+            foreach (var point in forces.Keys.ToList())
+                forces[point] += point.Force + (-point.Velocity * point.Damping);
+
+            return forces;
+        }
+
+        // dependent on positions
+        private Dictionary<MassPoint, Vector3> ComputeSpringForces()
+        {
+            var dict = new Dictionary<MassPoint, Vector3>();
+
+            foreach (var spring in springs)
             {
-                point.Dampen();
-                IntegrationType.GetIntegrator().Integrate(point, Time.deltaTime);
+                var forces = spring.CalculateElasticForces();
+
+                if (!dict.ContainsKey(spring.Point1))
+                    dict.Add(spring.Point1, Vector3.zero);
+
+                if (!dict.ContainsKey(spring.Point2))
+                    dict.Add(spring.Point2, Vector3.zero);
+
+                dict[spring.Point1] += forces;
+                dict[spring.Point2] -= forces;
             }
+
+            return dict;
         }
 
     }

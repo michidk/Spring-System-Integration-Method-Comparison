@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -25,7 +26,7 @@ namespace Assets.Physics
             this.initialLength = currentLength = (Point1.Position - Point2.Position).magnitude;
         }
 
-        public void ApplyElasticForces()
+        public Vector3 CalculateElasticForces()
         {
             Vector3 distance = Point1.Position - Point2.Position;
             currentLength = distance.magnitude;
@@ -33,8 +34,7 @@ namespace Assets.Physics
             // (-k * (l - L)) * ((x1 - x2) / l)
             Vector3 force = (-Stiffness * (currentLength - initialLength)) * (distance / currentLength);
 
-            Point1.Force += force;
-            Point2.Force -= force;
+            return force;
         }
 
         // Visualize Spring

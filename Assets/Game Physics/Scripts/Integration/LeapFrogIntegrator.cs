@@ -8,11 +8,28 @@ namespace Assets.Physics.Integration
     public class LeapFrogIntegrator : Integrator
     {
 
-        public override void Integrate(MassPoint point, float delta)
-        {
-            point.IntegrateVelocity(delta);
+        public bool LeapFrogFirst = true;
 
-            point.IntegratePosition(delta);
+        public override void Integrate(List<MassPoint> points, float delta)
+        {
+            Dictionary<MassPoint, Vector3> forces = Simulator.Instance.ComputeForces();
+
+            foreach (var point in points)
+            {
+                // start with velocity (and use half the delta is object just started moving)
+                if (forces.ContainsKey(point))
+                {
+                    if (LeapFrogFirst)
+                        point.IntegrateVelocity(delta * 0.5f, forces[point]);
+                    else
+                        point.IntegrateVelocity(delta, forces[point]);
+                }
+
+                // then integrate the position
+                point.IntegratePosition(delta);
+            }
+
+            LeapFrogFirst = false;
         }
 
     }

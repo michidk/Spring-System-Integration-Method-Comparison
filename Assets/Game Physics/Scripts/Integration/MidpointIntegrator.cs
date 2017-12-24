@@ -8,25 +8,32 @@ namespace Assets.Physics.Integration
     public class MidpointIntegrator : Integrator
     {
 
-        public override void Integrate(MassPoint point, float delta)
+        public override void Integrate(List<MassPoint> points, float delta)
         {
-            Vector3 oldPos = point.Position;
-            Vector3 oldVel = point.Velocity;
+            foreach (var point in points)
+            {
+                var oldPos = point.Position;
+                var oldVel = point.Velocity;
 
-            var forces = Vector3.back; //TODO: calculate spring forces for point
-            //point.Dampen();
+                Dictionary<MassPoint, Vector3> forces = Simulator.Instance.ComputeForces();
+
+                // start with position
+                point.IntegratePosition(delta * 0.5f);
+
+                // then velocity
+                if (forces.ContainsKey(point))
+                    point.IntegrateVelocity(delta * 0.5f, forces[point]);
 
 
-            point.IntegratePosition(delta * 0.5f);
-            point.IntegrateVelocity(delta * 0.5f, forces);
+                forces = Simulator.Instance.ComputeForces();
 
-            forces = Vector3.back; //TODO: calculate springe forces
-            //point.Dampen();
-            point.Position = oldPos;
-            point.IntegratePosition(delta);
+                point.Position = oldPos;
+                point.IntegratePosition(delta);
 
-            point.Velocity = oldVel;
-            point.IntegrateVelocity(delta, forces);
+                point.Velocity = oldVel;
+                if (forces.ContainsKey(point))
+                    point.IntegrateVelocity(delta * 0.5f, forces[point]);
+            }
         }
 
     }

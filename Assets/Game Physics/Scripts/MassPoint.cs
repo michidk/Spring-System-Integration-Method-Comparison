@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Assets.Physics
 {
-    public class MassPoint : MonoBehaviour
+    public class MassPoint : MonoBehaviour, IPhysicsComponent
     {
 
         public Vector3 Position
@@ -16,7 +16,7 @@ namespace Assets.Physics
         }
 
         public Vector3 Velocity;
-        public Vector3 Force;
+        public Vector3 Force;   // wihtout spring forces and damping
         public float Mass = 10f;
         public float Damping = 0.01f;
         public bool IsFixed = false;
@@ -27,20 +27,29 @@ namespace Assets.Physics
             Simulator.Instance.RegisterMassPoint(this);
         }
 
-        public void ClearForce()
+        public void Prepare() // : IPhysicsComponent
+        {
+            AddGravity();   // Note: could also be done directly after clearing forces or before integration
+        }
+
+        public void CleanUp() // : IPhysicsComponent
+        {
+            ClearForces();
+        }
+
+        private void ClearForces()
         {
             Force = Vector3.zero;
         }
 
-        public void AddGravity()
+        private void AddGravity()
         {
-            Force += Vector3.down * Simulator.Instance.Gravity;
+            Force += Vector3.down * Simulator.Instance.Gravity * Mass; // multiply with mass, because acceleration is mass independet
         }
 
-        public void Dampen()
+        public void AddForce(Vector3 force)
         {
-            // Damping
-            Force -= Velocity * Damping;
+            Force += force;
         }
 
         public void IntegratePosition(float delta)
@@ -48,7 +57,7 @@ namespace Assets.Physics
             Position = Position + delta * Velocity;
         }
         
-        public void IntegrateVelocity(float delta, Vector3 force)
+        public void IntegrateVelocity(float delta, Vector3 computedForce)
         {
             if (IsFixed)
             {
@@ -57,16 +66,9 @@ namespace Assets.Physics
             }
             else
             {
-
-
                 // Apply force
-                Velocity += force * (delta / Mass);
+                Velocity += computedForce * (delta / Mass);
             }
-        }
-
-        public void AddForce(Vector3 force)
-        {
-            Force += force;
         }
 
         // Visualize Force Vector

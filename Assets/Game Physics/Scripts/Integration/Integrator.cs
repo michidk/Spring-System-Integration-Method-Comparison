@@ -8,7 +8,7 @@ namespace Assets.Physics.Integration
     public abstract class Integrator
     {
 
-        public abstract void Integrate(MassPoint point, float delta);
+        public abstract void Integrate(List<MassPoint> points, float delta);
 
     }
 }
