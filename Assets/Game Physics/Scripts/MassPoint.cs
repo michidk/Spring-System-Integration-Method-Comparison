@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Assets.Physics.Integration;
 using UnityEngine;
 
 namespace Assets.Physics
@@ -54,7 +55,7 @@ namespace Assets.Physics
 
         public void IntegratePosition(float delta)
         {
-            Position = Position + delta * Velocity;
+            Position = Integrator.PerformIntegrationStep(Position, Velocity, delta);
         }
         
         public void IntegrateVelocity(float delta, Vector3 computedForce)
@@ -67,7 +68,7 @@ namespace Assets.Physics
             else
             {
                 // Apply force
-                Velocity += computedForce * (delta / Mass);
+                Position = Integrator.PerformIntegrationStep(Position, computedForce / Mass, delta);
             }
         }
 

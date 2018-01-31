@@ -9,6 +9,8 @@ namespace Assets.Physics.Integration
     public enum IntegrationType
     {
         Euler,
+        ImplicitEuler,
+        Heun,
         LeapFrog,
         Midpoint
     }
@@ -16,6 +18,8 @@ namespace Assets.Physics.Integration
     public static class IntegrationTypeExtensions
     {
         private static EulerIntegrator euler = new EulerIntegrator();
+        private static ImplicitEulerIntegrator implicitEuler = new ImplicitEulerIntegrator();
+        private static HeunIntegrator heun = new HeunIntegrator();
         private static LeapFrogIntegrator leapFrog = new LeapFrogIntegrator();
         private static MidpointIntegrator midpoint = new MidpointIntegrator();
 
@@ -26,6 +30,10 @@ namespace Assets.Physics.Integration
                 default:
                 case IntegrationType.Euler:
                     return euler;
+                case IntegrationType.ImplicitEuler:
+                    return implicitEuler;
+                case IntegrationType.Heun:
+                    return heun;
                 case IntegrationType.LeapFrog:
                     return leapFrog;
                 case IntegrationType.Midpoint:

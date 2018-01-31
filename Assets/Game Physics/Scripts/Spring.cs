@@ -41,7 +41,7 @@ namespace Assets.Physics
 #if UNITY_EDITOR
         void OnDrawGizmos()
         {
-            Gizmos.color = Color.Lerp(Color.blue, Color.red, currentLength / initialLength);
+            Gizmos.color = Color.Lerp(Color.red, Color.blue, currentLength / initialLength);
             Gizmos.DrawLine(Point1.Position, Point2.Position);
         }
 #endif

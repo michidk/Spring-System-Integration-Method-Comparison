@@ -5,12 +5,11 @@ using UnityEngine;
 
 namespace Assets.Physics.Integration
 {
-    public class MidpointIntegrator : Integrator
+    public class ImplicitEulerIntegrator : Integrator
     {
 
         public override void Integrate(List<MassPoint> points, float delta)
         {
-            // backup old points
             var oldPositions = new Vector3[points.Count];
             var oldVelocities = new Vector3[points.Count];
 
@@ -19,34 +18,38 @@ namespace Assets.Physics.Integration
             int index = 0;
             foreach (var point in points)
             {
-                // backup old positions and velocities
                 oldPositions[index] = point.Position;
                 oldVelocities[index] = point.Velocity;
-                index++;
-                
-                // half step
-                // start with position
-                point.IntegratePosition(delta / 2.0f);
 
-                // then velocity
+                index++;
+ 
+                // interpolate
+                // start with velocity
                 if (forces.ContainsKey(point))
-                    point.IntegrateVelocity(delta / 2.0f, forces[point]);
+                {
+                    point.IntegrateVelocity(delta, forces[point]);
+                }
+
+                // then integrate the position
+                point.IntegratePosition(delta);
             }
 
-            // use slope (forces) of half step for the full step
+            // use positions and velocities of previous full step to compute new forces (and use those as starting point for new calculations)
             forces = Simulator.Instance.ComputeForces();
             index = 0;
             foreach (var point in points)
             {
                 point.Position = oldPositions[index];
                 point.Velocity = oldVelocities[index];
-                index++;
 
                 point.IntegratePosition(delta);
 
                 if (forces.ContainsKey(point))
-                    point.IntegrateVelocity(delta / 2.0f, forces[point]);
+                    point.IntegrateVelocity(delta, forces[point]);
+
+                index++;
             }
+            
         }
 
     }

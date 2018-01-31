@@ -16,11 +16,11 @@ namespace Assets.Physics.Integration
 
             foreach (var point in points)
             {
-                // start with velocity (and use half the delta is object just started moving)
+                // start with velocity (and use half the delta if object just started moving)
                 if (forces.ContainsKey(point))
                 {
                     if (LeapFrogFirst)
-                        point.IntegrateVelocity(delta * 0.5f, forces[point]);
+                        point.IntegrateVelocity(delta / 2.0f, forces[point]);
                     else
                         point.IntegrateVelocity(delta, forces[point]);
                 }
