@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Assets.Physics.Integration;
+using Assets.Physics.Integration.Helper;
 using UnityEngine;
 
 namespace Assets.Physics
@@ -25,13 +26,7 @@ namespace Assets.Physics
 
         void FixedUpdate()
         {
-            foreach (var point in points)
-                point.Prepare();
-
-            Integrate();
-
-            foreach (var point in points)
-                point.CleanUp();
+            Simulate(Time.fixedDeltaTime);
         }
 
         public void RegisterMassPoint(MassPoint point)
@@ -44,12 +39,26 @@ namespace Assets.Physics
             springs.Add(spring);
         }
 
-        private void Integrate()
+        public void Simulate(float deltaTime)
+        {
+            foreach (var point in points)
+                point.Prepare();
+
+            Integrate(deltaTime);
+
+            foreach (var point in points)
+            {
+                point.Apply();
+                point.CleanUp();
+            }
+        }
+
+        private void Integrate(float deltaTime)
         {
             ((LeapFrogIntegrator) IntegrationType.LeapFrog.GetIntegrator()).LeapFrogFirst =
                 IntegrationType != IntegrationType.LeapFrog;
 
-            IntegrationType.GetIntegrator().Integrate(points, Time.deltaTime);
+            IntegrationType.GetIntegrator().Integrate(points, deltaTime);
         }
 
         // computes forces of spring forces, external forces and damping
@@ -57,9 +66,14 @@ namespace Assets.Physics
         {
             Dictionary<MassPoint, Vector3> forces = ComputeSpringForces();
 
-            // adding spring forces and damping
-            foreach (var point in forces.Keys.ToList())
-                forces[point] += point.Force + (-point.Velocity * point.Damping);
+            // adding external forces and damping
+            foreach (var point in points)
+            {
+                if (!forces.ContainsKey(point))
+                    forces.Add(point, Vector3.zero);
+
+                forces[point] += point.ExternalAcceleration + -(point.State.Velocity * point.Damping);
+            }
 
             return forces;
         }

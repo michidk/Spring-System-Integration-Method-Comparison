@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Assets.Physics;
 using UnityEngine;
 
-namespace Assets.Physics.Integration
+namespace Assets.Physics.Integration.Helper
 {
     // type comparison: https://codepen.io/michidk/pen/VymawG?editors=0010#0
     public enum IntegrationType

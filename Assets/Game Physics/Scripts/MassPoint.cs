@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Assets.Physics.Integration;
+using Assets.Physics.Integration.Helper;
 using UnityEngine;
 
 namespace Assets.Physics
@@ -10,14 +11,13 @@ namespace Assets.Physics
     public class MassPoint : MonoBehaviour, IPhysicsComponent
     {
 
-        public Vector3 Position
-        {
-            get { return this.transform.position; }
-            set { this.transform.position = value; }
-        }
+        public Vector3 Position { get { return State.Position; } }
+        public Vector3 Velocity { get { return State.Velocity; } }
 
-        public Vector3 Velocity;
-        public Vector3 Force;   // wihtout spring forces and damping
+        public State State;
+        public Derivative Derivative;
+
+        public Vector3 ExternalAcceleration;
         public float Mass = 10f;
         public float Damping = 0.01f;
         public bool IsFixed = false;
@@ -26,50 +26,47 @@ namespace Assets.Physics
         void Awake()
         {
             Simulator.Instance.RegisterMassPoint(this);
+
+            // set initial position
+            State.Position = this.transform.position;
         }
 
         public void Prepare() // : IPhysicsComponent
         {
+            // get position from Unity (movement through unity editor etc)
+            State.Position = this.transform.position;
+
             AddGravity();   // Note: could also be done directly after clearing forces or before integration
+        }
+
+        public void Apply()
+        {
+            this.transform.position = State.Position;
         }
 
         public void CleanUp() // : IPhysicsComponent
         {
-            ClearForces();
+            ClearAcceleration();
         }
 
-        private void ClearForces()
+        private void ClearAcceleration()
         {
-            Force = Vector3.zero;
+            ExternalAcceleration = Vector3.zero;
         }
 
         private void AddGravity()
         {
-            Force += Vector3.down * Simulator.Instance.Gravity * Mass; // multiply with mass, because acceleration is mass independet
+            ExternalAcceleration += Vector3.down * Simulator.Instance.Gravity;
         }
 
         public void AddForce(Vector3 force)
         {
-            Force += force;
+            ExternalAcceleration += force / Mass;
         }
 
-        public void IntegratePosition(float delta)
+        public void AddAcceleration(Vector3 acceleration)
         {
-            Position = Integrator.PerformIntegrationStep(Position, Velocity, delta);
-        }
-        
-        public void IntegrateVelocity(float delta, Vector3 computedForce)
-        {
-            if (IsFixed)
-            {
-                // Debug.LogError("Can't add forces to a fixed point."); 
-                // just do nothing
-            }
-            else
-            {
-                // Apply force
-                Position = Integrator.PerformIntegrationStep(Position, computedForce / Mass, delta);
-            }
+            ExternalAcceleration += acceleration;
         }
 
         // Visualize Force Vector
@@ -80,7 +77,7 @@ namespace Assets.Physics
                 return;
 
             Gizmos.color = Color.cyan;
-            Gizmos.DrawLine(Position, Position + Force);
+            Gizmos.DrawLine(State.Position, State.Position + State.Velocity);
         }
 #endif
 

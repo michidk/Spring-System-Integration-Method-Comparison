@@ -10,46 +10,45 @@ namespace Assets.Physics.Integration
 
         public override void Integrate(List<MassPoint> points, float delta)
         {
-            var oldPositions = new Vector3[points.Count];
-            var oldVelocities = new Vector3[points.Count];
+            //var oldPositions = new Vector3[points.Count];
+            //var oldVelocities = new Vector3[points.Count];
 
-            Dictionary<MassPoint, Vector3> forces = Simulator.Instance.ComputeForces();
+            //Dictionary<MassPoint, Vector3> forces = Simulator.Instance.ComputeForces();
 
-            int index = 0;
-            foreach (var point in points)
-            {
-                oldPositions[index] = point.Position;
-                oldVelocities[index] = point.Velocity;
+            //int index = 0;
+            //foreach (var point in points)
+            //{
+            //    oldPositions[index] = point.Position;
+            //    oldVelocities[index] = point.Velocity;
 
-                index++;
+            //    index++;
  
-                // interpolate
-                // start with velocity
-                if (forces.ContainsKey(point))
-                {
-                    point.IntegrateVelocity(delta, forces[point]);
-                }
+            //    // interpolate
+            //    // start with velocity
+            //    if (forces.ContainsKey(point))
+            //    {
+            //        point.IntegrateVelocity(delta, forces[point]);
+            //    }
 
-                // then integrate the position
-                point.IntegratePosition(delta);
-            }
+            //    // then integrate the position
+            //    point.IntegratePosition(delta);
+            //}
 
-            // use positions and velocities of previous full step to compute new forces (and use those as starting point for new calculations)
-            forces = Simulator.Instance.ComputeForces();
-            index = 0;
-            foreach (var point in points)
-            {
-                point.Position = oldPositions[index];
-                point.Velocity = oldVelocities[index];
+            //// use positions and velocities of previous full step to compute new forces (and use those as starting point for new calculations)
+            //forces = Simulator.Instance.ComputeForces();
+            //index = 0;
+            //foreach (var point in points)
+            //{
+            //    point.Position = oldPositions[index];
+            //    point.Velocity = oldVelocities[index];
 
-                point.IntegratePosition(delta);
+            //    point.IntegratePosition(delta);
 
-                if (forces.ContainsKey(point))
-                    point.IntegrateVelocity(delta, forces[point]);
+            //    if (forces.ContainsKey(point))
+            //        point.IntegrateVelocity(delta, forces[point]);
 
-                index++;
-            }
-            
+            //    index++;
+            //}
         }
 
     }
