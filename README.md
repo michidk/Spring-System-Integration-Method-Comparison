@@ -1,6 +1,6 @@
 # Spring System Integration Method Comparison
 
-Following the lecture "Game Physics" at Technical University of Munich (WS17/18), I wanted to implement an actual spring system in unity to compare the different integration methods.
+Following the lecture "Game Physics" at Technical University of Munich (WS17/18), I wanted to implement an actual spring system in [Unity](https://unity.com/) to compare the different integration methods.
 
 ![Screenshot](/images/screenshot.png)
 
