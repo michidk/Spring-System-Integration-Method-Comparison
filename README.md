@@ -18,8 +18,9 @@ All integration method implementations are contained in the "Scripts/Integration
 
 ## Comparison
 
-To compare the integrators a bit better, I created a [codepen](https://codepen.io/michidk/pen/VymawG) to visualize the performance on a simple function:
+To compare the integrators a bit better, I created a [codepen](https://codepen.io/michidk/pen/VymawG) to visualize the performance on a exponential function:
 
 ![Comparison](/images/comparison.png)
 
+The horizontal axis shows the timesteps, the vertical axis the estimated result of the exponential function.
 As you can see, Runge-Kutta integration (RK4) ist the most accurate method. This was to be expected since its a fourth-order method, which is the highest order of all tested methods.
